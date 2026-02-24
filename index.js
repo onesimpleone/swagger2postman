@@ -10,18 +10,24 @@ const merger=require('./lib/merger')
 
 const program = require('commander')
 program.version('1.0.0')
-    .option('-s --service <service>', 'which service to convert')
+    .option('-s, --service <service>', 'service config name from config/ (e.g. local, staging, prod)')
     .option('-r --replace [repliaces]', 'comma split api name which will replace not merge')
     .parse(process.argv)
 
 
 var serviceConfig = config[program.service]
 var url = serviceConfig.url
-var collectionName = serviceConfig.collection_name
+var collectionPrefix = serviceConfig.collection_prefix
+var collectionName = collectionPrefix + ': API'
+
+//ensure auth collection exists
+collection.createAuthCollection(collectionPrefix + ': Auth').catch(err => {
+    console.error('❌ Failed to create auth collection:', err)
+})
 
 //run update
 update().catch(err => {
-    console.error("run failed," + err)
+    console.error('❌ Update failed:', err)
 })
 
 //get swagger json
@@ -32,7 +38,7 @@ function getSwaggerJson(url) {
     }).then(response => {
         return response.data
     }).catch(err => {
-        console.log('get swagger json failed: ' + err.message)
+        console.error('❌ Failed to get Swagger JSON:', err.message)
         process.exit(-1);
     })
 }
@@ -44,9 +50,7 @@ async function update() {
     //add postman collection used info
     swaggerJson['info'] = {
         'title': collectionName,
-        'description': collectionName + ' api',
-        'version': '1.0.0',
-        '_postman_id': '807bb824-b333-4b59-a6ef-a8d46d3b95bf'
+        'version': '1.0.0'
     }
     var converterInputData = {
         'type': 'json',
@@ -56,31 +60,25 @@ async function update() {
     //use postman tool convert to postman collection
     converter.convert(converterInputData, { 'folderStrategy': 'Tags' }, async (_a, res) => {
         if (res.result === false) {
-            console.log('convert failed')
-            console.log(res.reason)
+            console.error('❌ Conversion failed')
+            console.error(res.reason)
             return
         }
-        var convertedJson = res.output[0].data
+        var convertedJson = JSON.parse(
+            JSON.stringify(res.output[0].data)
+        )
 
         var id = await collection.getCollectionId(collectionName)
         if (id === null) {
             return
         }
-        var collectionJson = {
-            'collection': {
-                'info': {
-                    'name': collectionName,
-                    'description': collectionName + ' api',
-                    '_postman_id': id,
-                    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-
-                },
-                "item": convertedJson.item
-            }
-        }
+        var template = collection.loadApiTemplate(collectionName)
+        template.collection.info._postman_id = id
+        template.collection.item = convertedJson.item
+        var collectionJson = template
     
         var savedCollection = await collection.getCollectionDetail(id)   
         var mergedCollection=merger.merge(savedCollection,collectionJson)    
-        collection.updateCollection(id, mergedCollection)
+        collection.updateCollection(id, mergedCollection, 'API collection')
     })
 }

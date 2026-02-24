@@ -1,0 +1,113 @@
+{
+  "collection": {
+    "info": {
+      "name": "",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Login (create token)",
+        "event": [
+          {
+            "listen": "prerequest",
+            "script": {
+              "exec": [""],
+              "type": "text/javascript"
+            }
+          },
+          {
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const baseUrl = pm.variables.get(\"baseUrl\");",
+                "",
+                "/** Set Workspace ID environment */",
+                "pm.sendRequest(`${baseUrl}/api/users/me/`, function (err, response) {",
+                "    console.log('response', response)",
+                "    const workspaceId = response.json().data.attributes.workspaces[0].id;",
+                "    pm.globals.set(\"workspace_id\", workspaceId);    ",
+                "});",
+                ""
+              ],
+              "type": "text/javascript"
+            }
+          }
+        ],
+        "request": {
+          "method": "POST",
+          "header": [],
+          "body": {
+            "mode": "urlencoded",
+            "urlencoded": [
+              { "key": "grant_type", "value": "password", "type": "text" },
+              { "key": "username", "value": "user@test.com", "type": "text" },
+              { "key": "password", "value": "123456", "type": "text" },
+              { "key": "client_id", "value": "{{clientId}}", "type": "text" }
+            ]
+          },
+          "url": {
+            "raw": "{{baseUrl}}/oauth/token/",
+            "host": ["{{baseUrl}}"],
+            "path": ["oauth", "token", ""]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Login (refresh token)",
+        "request": {
+          "method": "POST",
+          "header": [],
+          "body": {
+            "mode": "urlencoded",
+            "urlencoded": [
+              { "key": "grant_type", "value": "refresh_token", "type": "text" },
+              { "key": "refresh_token", "value": "", "type": "text" },
+              { "key": "client_id", "value": "{{clientId}}", "type": "text" }
+            ]
+          },
+          "url": {
+            "raw": "{{baseUrl}}/oauth/token/",
+            "host": ["{{baseUrl}}"],
+            "path": ["oauth", "token", ""]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Logout (revoke token)",
+        "request": {
+          "method": "POST",
+          "header": [],
+          "body": {
+            "mode": "urlencoded",
+            "urlencoded": [
+              { "key": "token", "value": "", "type": "text" },
+              { "key": "client_id", "value": "{{clientId}}", "type": "text" }
+            ]
+          },
+          "url": {
+            "raw": "{{baseUrl}}/oauth/revoke_token/",
+            "host": ["{{baseUrl}}"],
+            "path": ["oauth", "revoke_token", ""]
+          }
+        },
+        "response": []
+      }
+    ],
+    "event": [
+      {
+        "listen": "prerequest",
+        "script": { "type": "text/javascript", "exec": [""] }
+      },
+      {
+        "listen": "test",
+        "script": { "type": "text/javascript", "exec": [""] }
+      }
+    ],
+    "variable": [
+      { "key": "baseUrl", "value": "http://localhost:8000", "type": "string" },
+      { "key": "clientId", "value": "PvxHYjZjUDh40sZ1DCADlAwifgabr6JoGBOJ1fka", "type": "string" }
+    ]
+  }
+}

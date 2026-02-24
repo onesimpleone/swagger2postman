@@ -1,6 +1,6 @@
 {
-  "test": {
-    "collection_name": "Direct Suite: API",
+  "local": {
+    "collection_prefix": "Direct Suite",
     "url": "http://localhost:8000/api/schema/"
   }
 }

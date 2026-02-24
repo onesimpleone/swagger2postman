@@ -4,7 +4,7 @@
   "description": "swagger to postman helper",
   "main": "index.js",
   "scripts": {
-    "test": "node index.js -s test"
+    "test": "node index.js -s local"
   },
   "keywords": [
     "swagger",
@@ -22,6 +22,6 @@
     "pinyin": "^2.9.1"
   },
   "bin": {
-    "apih": "./index.js"
+    "swagger2postman": "./index.js"
   }
 }

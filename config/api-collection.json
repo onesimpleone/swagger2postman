@@ -1,0 +1,37 @@
+{
+    "collection": {
+        "info": {
+            "name": "",
+            "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+        },
+        "item": [],
+        "variable": [
+            {
+                "key": "baseUrl",
+                "value": "http://localhost:8000"
+            }
+        ],
+        "event": [
+            {
+                "listen": "prerequest",
+                "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                        "pm.request.headers.upsert(",
+                        "    {",
+                        "        key: \"Workspace-ID\",",
+                        "        value: pm.globals.get(\"workspace_id\")",
+                        "    },",
+                        ");",
+                        "pm.request.headers.upsert(",
+                        "    {",
+                        "        key: \"Content-Type\",",
+                        "        value: \"application/json\"",
+                        "    },",
+                        ");"
+                    ]
+                }
+            }
+        ]
+    }
+}
