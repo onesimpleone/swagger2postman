@@ -1,6 +1,6 @@
 {
   "test": {
-    "collection_name": "OneSimple API",
+    "collection_name": "Direct Suite: API",
     "url": "http://localhost:8000/api/schema/"
   }
 }
